@@ -1,0 +1,45 @@
+version: 6.7.0
+type: DeclarativeSource
+
+check:
+  type: CheckStream
+  stream_names:
+    - moedas
+
+streams:
+  - type: DeclarativeStream
+    name: moedas
+    primary_key:
+      - simbolo          # TODO: qual campo você identificou como chave única do stream moedas? (Aula 2, pergunta 5)
+    retriever:
+      type: SimpleRetriever
+      requester:
+        type: HttpRequester
+        url_base: https://olinda.bcb.gov.br        # TODO: parte fixa da URL, só até ".../v1" (sem o endpoint específico)
+        path: /olinda/servico/PTAX/versao/v1/odata/Moedas             # TODO: o restante do caminho, específico do endpoint de moedas
+        http_method: GET
+        request_parameters:
+          $format: json       # isso é o "?$format=json" que você usou no curl
+      record_selector:
+        type: RecordSelector
+        extractor:
+          type: DpathExtractor
+          field_path:
+            - value          # TODO: dentro do JSON de resposta, qual é a CHAVE que contém a lista de moedas?
+    schema_loader:
+      type: InlineSchemaLoader
+      schema:
+        type: object
+        properties:
+          simbolo:
+            type: string
+          nomeFormatado:
+            type: string
+          tipoMoeda:
+            type: string
+
+spec:
+  type: Spec
+  connection_specification:
+    type: object
+    properties: {}
