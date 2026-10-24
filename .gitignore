@@ -1,0 +1,22 @@
+# Segredos
+.env
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# dbt
+include/dbt/target/
+include/dbt/dbt_packages/
+include/dbt/logs/
+
+# Airflow / Astro
+logs/
+airflow.db
+
+# Sistema / IDE
+.DS_Store
+.vscode/
+.idea/
