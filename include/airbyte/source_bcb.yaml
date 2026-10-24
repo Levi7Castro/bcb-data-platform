@@ -5,27 +5,28 @@ check:
   type: CheckStream
   stream_names:
     - moedas
+    - sgs_series
 
 streams:
   - type: DeclarativeStream
     name: moedas
     primary_key:
-      - simbolo          # TODO: qual campo você identificou como chave única do stream moedas? (Aula 2, pergunta 5)
+      - simbolo
     retriever:
       type: SimpleRetriever
       requester:
         type: HttpRequester
-        url_base: https://olinda.bcb.gov.br        # TODO: parte fixa da URL, só até ".../v1" (sem o endpoint específico)
-        path: /olinda/servico/PTAX/versao/v1/odata/Moedas             # TODO: o restante do caminho, específico do endpoint de moedas
+        url_base: https://olinda.bcb.gov.br
+        path: /olinda/servico/PTAX/versao/v1/odata/Moedas
         http_method: GET
         request_parameters:
-          $format: json       # isso é o "?$format=json" que você usou no curl
+          $format: json
       record_selector:
         type: RecordSelector
         extractor:
           type: DpathExtractor
           field_path:
-            - value          # TODO: dentro do JSON de resposta, qual é a CHAVE que contém a lista de moedas?
+            - value
     schema_loader:
       type: InlineSchemaLoader
       schema:
@@ -36,6 +37,51 @@ streams:
           nomeFormatado:
             type: string
           tipoMoeda:
+            type: string
+
+  - type: DeclarativeStream
+    name: sgs_series
+    primary_key:
+      - codigo_serie
+      - data
+    retriever:
+      type: SimpleRetriever
+      requester:
+        type: HttpRequester
+        url_base: https://api.bcb.gov.br
+        path: /dados/serie/bcdata.sgs.{{ stream_partition.codigo_serie }}/dados/ultimos/5
+        http_method: GET
+        request_parameters:
+          formato: json
+      record_selector:
+        type: RecordSelector
+        extractor:
+          type: DpathExtractor
+          field_path: []
+      partition_router:
+        type: ListPartitionRouter
+        cursor_field: codigo_serie
+        values:
+          - "432"
+          - "433"
+          - "189"
+          - "4390"
+    transformations:
+      - type: AddFields
+        fields:
+          - path:
+              - codigo_serie
+            value: "{{ stream_partition.codigo_serie }}"
+    schema_loader:
+      type: InlineSchemaLoader
+      schema:
+        type: object
+        properties:
+          data:
+            type: string
+          valor:
+            type: string
+          codigo_serie:
             type: string
 
 spec:
