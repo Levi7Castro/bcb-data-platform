@@ -76,8 +76,8 @@ Pré-requisitos: Docker, [Astro CLI](https://www.astronomer.io/docs/astro/cli/in
 - [x] Transformações dbt — camada silver (tipada, testada, documentada)
 - [x] Transformações dbt — camada gold (modelos de negócio)
 - [x] Orquestração completa via Airflow, Dockerizado, com ambientes isolados
-- [ ] CI/CD com GitHub Actions (separação dev/main)
-- [ ] Dashboard de consumo (Streamlit) — *bônus, não prioritário*
+- [x] CI/CD com GitHub Actions (separação dev/main, runner self-hosted)
+- [x] Dashboard de consumo (Streamlit)
 
 ## Autor
 
