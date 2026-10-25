@@ -1,0 +1,21 @@
+name: CD
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Atualizar codigo para a versao mais recente da main
+        run: |
+          cd ~/bcb-data-platform
+          git checkout main
+          git pull origin main
+
+      - name: Reiniciar ambiente Airflow (Astro)
+        run: |
+          cd ~/bcb-data-platform/include/airflow
+          astro dev stop
+          astro dev start
