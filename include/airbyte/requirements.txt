@@ -1,0 +1,4 @@
+airbyte==0.35.7
+sqlalchemy==2.0.37  # evita o 2.0.36 (incompativel com airbyte) e o 2.1+ (quebra o snowflake-sqlalchemy usado internamente pelo PyAirbyte)
+psycopg2-binary==2.9.10
+pyyaml==6.0.2

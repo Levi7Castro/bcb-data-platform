@@ -1,0 +1,142 @@
+version: 6.7.0
+type: DeclarativeSource
+
+check:
+  type: CheckStream
+  stream_names:
+    - moedas
+    - sgs_series
+    - ptax_cotacoes
+
+streams:
+  - type: DeclarativeStream
+    name: moedas
+    primary_key:
+      - simbolo
+    retriever:
+      type: SimpleRetriever
+      requester:
+        type: HttpRequester
+        url_base: https://olinda.bcb.gov.br
+        path: /olinda/servico/PTAX/versao/v1/odata/Moedas
+        http_method: GET
+        request_parameters:
+          $format: json
+      record_selector:
+        type: RecordSelector
+        extractor:
+          type: DpathExtractor
+          field_path:
+            - value
+    schema_loader:
+      type: InlineSchemaLoader
+      schema:
+        type: object
+        properties:
+          simbolo:
+            type: string
+          nomeFormatado:
+            type: string
+          tipoMoeda:
+            type: string
+
+  - type: DeclarativeStream
+    name: sgs_series
+    primary_key:
+      - codigo_serie
+      - data
+    retriever:
+      type: SimpleRetriever
+      requester:
+        type: HttpRequester
+        url_base: https://api.bcb.gov.br
+        path: /dados/serie/bcdata.sgs.{{ stream_partition.codigo_serie }}/dados/ultimos/5
+        http_method: GET
+        request_parameters:
+          formato: json
+      record_selector:
+        type: RecordSelector
+        extractor:
+          type: DpathExtractor
+          field_path: []
+      partition_router:
+        type: ListPartitionRouter
+        cursor_field: codigo_serie
+        values:
+          - "432"
+          - "433"
+          - "189"
+          - "4390"
+    transformations:
+      - type: AddFields
+        fields:
+          - path:
+              - codigo_serie
+            value: "{{ stream_partition.codigo_serie }}"
+    schema_loader:
+      type: InlineSchemaLoader
+      schema:
+        type: object
+        properties:
+          data:
+            type: string
+          valor:
+            type: string
+          codigo_serie:
+            type: string
+
+  - type: DeclarativeStream
+    name: ptax_cotacoes
+    primary_key:
+      - moeda
+      - dataHoraCotacao
+    retriever:
+      type: SimpleRetriever
+      requester:
+        type: HttpRequester
+        url_base: https://olinda.bcb.gov.br
+        path: /olinda/servico/PTAX/versao/v1/odata/CotacaoMoedaPeriodo(moeda=@moeda,dataInicial=@dataInicial,dataFinalCotacao=@dataFinalCotacao)?@moeda='{{ stream_partition.moeda }}'&@dataInicial='10-20-2026'&@dataFinalCotacao='10-24-2026'&$format=json
+        http_method: GET
+      record_selector:
+        type: RecordSelector
+        extractor:
+          type: DpathExtractor
+          field_path:
+            - value
+      partition_router:
+        type: ListPartitionRouter
+        cursor_field: moeda
+        values:
+          - "USD"
+          - "EUR"
+    transformations:
+      - type: AddFields
+        fields:
+          - path:
+              - moeda
+            value: "{{ stream_partition.moeda }}"
+    schema_loader:
+      type: InlineSchemaLoader
+      schema:
+        type: object
+        properties:
+          paridadeCompra:
+            type: number
+          paridadeVenda:
+            type: number
+          cotacaoCompra:
+            type: number
+          cotacaoVenda:
+            type: number
+          dataHoraCotacao:
+            type: string
+          tipoBoletim:
+            type: string
+          moeda:
+            type: string
+
+spec:
+  type: Spec
+  connection_specification:
+    type: object
+    properties: {}
