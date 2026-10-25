@@ -21,3 +21,4 @@ airflow.db
 .vscode/
 .idea/
 .cache/
+include/airbyte/DuckDBCache*

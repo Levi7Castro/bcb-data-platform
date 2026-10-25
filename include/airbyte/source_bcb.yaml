@@ -6,6 +6,7 @@ check:
   stream_names:
     - moedas
     - sgs_series
+    - ptax_cotacoes
 
 streams:
   - type: DeclarativeStream
@@ -82,6 +83,56 @@ streams:
           valor:
             type: string
           codigo_serie:
+            type: string
+
+  - type: DeclarativeStream
+    name: ptax_cotacoes
+    primary_key:
+      - moeda
+      - dataHoraCotacao
+    retriever:
+      type: SimpleRetriever
+      requester:
+        type: HttpRequester
+        url_base: https://olinda.bcb.gov.br
+        path: /olinda/servico/PTAX/versao/v1/odata/CotacaoMoedaPeriodo(moeda=@moeda,dataInicial=@dataInicial,dataFinalCotacao=@dataFinalCotacao)?@moeda='{{ stream_partition.moeda }}'&@dataInicial='10-20-2026'&@dataFinalCotacao='10-24-2026'&$format=json
+        http_method: GET
+      record_selector:
+        type: RecordSelector
+        extractor:
+          type: DpathExtractor
+          field_path:
+            - value
+      partition_router:
+        type: ListPartitionRouter
+        cursor_field: moeda
+        values:
+          - "USD"
+          - "EUR"
+    transformations:
+      - type: AddFields
+        fields:
+          - path:
+              - moeda
+            value: "{{ stream_partition.moeda }}"
+    schema_loader:
+      type: InlineSchemaLoader
+      schema:
+        type: object
+        properties:
+          paridadeCompra:
+            type: number
+          paridadeVenda:
+            type: number
+          cotacaoCompra:
+            type: number
+          cotacaoVenda:
+            type: number
+          dataHoraCotacao:
+            type: string
+          tipoBoletim:
+            type: string
+          moeda:
             type: string
 
 spec:
