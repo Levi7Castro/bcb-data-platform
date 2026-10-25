@@ -33,3 +33,6 @@ models:
   bcb_analytics:
     silver:
       +materialized: table
+    gold:
+      +materialized: table
+      +schema: gold

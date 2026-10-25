@@ -1,0 +1,38 @@
+version: 2
+
+models:
+  - name: indicadores_economicos
+    description: "Séries econômicas do SGS (BCB) com o nome do indicador já aplicado, pronta pra consumo em relatórios."
+    columns:
+      - name: data
+        description: "Data de referência do valor."
+      - name: codigo_serie
+        description: "Código da série no SGS."
+      - name: nome_indicador
+        description: "Nome do indicador (Selic Meta, IPCA, IGP-M, Selic Efetiva)."
+      - name: valor
+        description: "Valor do indicador na data de referência."
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - codigo_serie
+            - data
+
+  - name: cotacoes_fechamento
+    description: "Cotação de fechamento diária do câmbio (PTAX) por moeda, pronta pra consumo em relatórios."
+    columns:
+      - name: moeda
+        description: "Código ISO da moeda."
+      - name: nome_moeda
+        description: "Nome completo da moeda."
+      - name: data_cotacao
+        description: "Data da cotação de fechamento."
+      - name: cotacaocompra
+        description: "Cotação de compra de fechamento, em Reais."
+      - name: cotacaovenda
+        description: "Cotação de venda de fechamento, em Reais."
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - moeda
+            - data_cotacao
