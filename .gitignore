@@ -20,3 +20,5 @@ airflow.db
 .DS_Store
 .vscode/
 .idea/
+.cache/
+include/airbyte/DuckDBCache*
