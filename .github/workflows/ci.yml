@@ -49,6 +49,12 @@ jobs:
         working-directory: include/dbt
         run: pip install -r requirements.txt
 
+      - name: Instalar pacotes do dbt (dbt deps)
+        working-directory: include/dbt/bcb_analytics
+        env:
+          DBT_PROFILES_DIR: ../
+        run: dbt deps
+
       - name: Rodar dbt build
         working-directory: include/dbt/bcb_analytics
         env:
