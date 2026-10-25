@@ -1,0 +1,66 @@
+version: 2
+
+models:
+  - name: moedas
+    description: "Moedas estrangeiras disponíveis na tabela de referência do PTAX (BCB)."
+    columns:
+      - name: simbolo
+        description: "Código ISO da moeda (ex: USD, EUR). Chave única da tabela."
+        tests:
+          - unique
+          - not_null
+      - name: nomeformatado
+        description: "Nome da moeda em português."
+      - name: tipomoeda
+        description: "Classificação do tipo de moeda conforme o BCB (A ou B)."
+
+  - name: sgs_series
+    description: "Séries temporais do SGS do BCB: Selic Meta, IPCA, IGP-M e Selic efetiva."
+    columns:
+      - name: data
+        description: "Data de referência do valor da série."
+        tests:
+          - not_null
+      - name: valor
+        description: "Valor numérico da série na data de referência."
+        tests:
+          - not_null
+      - name: codigo_serie
+        description: "Código identificador da série no SGS (432=Selic Meta, 433=IPCA, 189=IGP-M, 4390=Selic efetiva)."
+        tests:
+          - not_null
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - codigo_serie
+            - data
+
+  - name: ptax_cotacoes
+    description: "Cotações diárias de câmbio (PTAX) do BCB para moedas estrangeiras em relação ao Real."
+    columns:
+      - name: moeda
+        description: "Código ISO da moeda estrangeira cotada."
+        tests:
+          - not_null
+      - name: datahoracotacao
+        description: "Data e hora exatas do boletim de cotação."
+        tests:
+          - not_null
+      - name: tipoboletim
+        description: "Tipo do boletim de cotação."
+        tests:
+          - accepted_values:
+              values: ['Fechamento','Intermediário','Abertura']
+      - name: paridadecompra
+        description: "Paridade de compra em relação ao dólar."
+      - name: paridadevenda
+        description: "Paridade de venda em relação ao dólar."
+      - name: cotacaocompra
+        description: "Cotação de compra em Reais."
+      - name: cotacaovenda
+        description: "Cotação de venda em Reais."
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - moeda
+            - datahoracotacao
