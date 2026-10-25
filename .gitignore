@@ -7,11 +7,6 @@ __pycache__/
 .venv/
 venv/
 
-# dbt
-include/dbt/target/
-include/dbt/dbt_packages/
-include/dbt/logs/
-
 # Airflow / Astro
 logs/
 airflow.db
