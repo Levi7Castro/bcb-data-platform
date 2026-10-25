@@ -1,0 +1,9 @@
+version: 2
+
+sources:
+  - name: bronze
+    schema: bronze
+    tables:
+      - name: moedas
+      - name: sgs_series
+      - name: ptax_cotacoes
