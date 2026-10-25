@@ -18,3 +18,6 @@ airflow.db
 .cache/
 include/airbyte/DuckDBCache*
 include/dbt/.user.yml
+
+# GitHub Actions self-hosted runner
+actions-runner/
