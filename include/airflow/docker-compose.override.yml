@@ -1,0 +1,5 @@
+services:
+  scheduler:
+    volumes:
+      - ../airbyte:/usr/local/airflow/include/airbyte
+      - ../dbt:/usr/local/airflow/include/dbt

@@ -7,7 +7,7 @@ with open("source_bcb.yaml") as f:
     manifest = yaml.safe_load(f)
 
 cache = PostgresCache(
-    host="localhost",
+    host=os.environ.get("DW_HOST", "localhost"),
     port=int(os.environ["DW_PORT"]),
     username=os.environ["DW_USER"],
     password=os.environ["DW_PASSWORD"],

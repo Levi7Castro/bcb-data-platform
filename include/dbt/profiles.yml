@@ -1,0 +1,12 @@
+bcb_analytics:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: "{{ env_var('DW_HOST', 'localhost') }}"
+      port: "{{ env_var('DW_PORT') | int }}"
+      user: "{{ env_var('DW_USER') }}"
+      password: "{{ env_var('DW_PASSWORD') }}"
+      dbname: "{{ env_var('DW_DATABASE') }}"
+      schema: silver
+      threads: 4

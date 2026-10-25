@@ -17,3 +17,4 @@ airflow.db
 .idea/
 .cache/
 include/airbyte/DuckDBCache*
+include/dbt/.user.yml
