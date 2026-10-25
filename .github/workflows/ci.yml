@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+    branches: [develop]
+
+jobs:
+  pipeline-check:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: dw_user
+          POSTGRES_PASSWORD: "1234"
+          POSTGRES_DB: dw
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dependências do Airbyte
+        working-directory: include/airbyte
+        run: pip install -r requirements.txt
+
+      - name: Carregar camada bronze
+        working-directory: include/airbyte
+        env:
+          DW_HOST: localhost
+          DW_PORT: "5432"
+          DW_USER: dw_user
+          DW_PASSWORD: "1234"
+          DW_DATABASE: dw
+        run: python load_bronze.py
+
+      - name: Instalar dependências do dbt
+        working-directory: include/dbt
+        run: pip install -r requirements.txt
+
+      - name: Instalar pacotes do dbt (dbt deps)
+        working-directory: include/dbt/bcb_analytics
+        env:
+          DBT_PROFILES_DIR: ../
+        run: dbt deps
+
+      - name: Rodar dbt build
+        working-directory: include/dbt/bcb_analytics
+        env:
+          DW_HOST: localhost
+          DW_PORT: "5432"
+          DW_USER: dw_user
+          DW_PASSWORD: "1234"
+          DW_DATABASE: dw
+          DBT_PROFILES_DIR: ../
+        run: dbt build
